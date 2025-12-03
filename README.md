@@ -20,6 +20,8 @@ Editor visual de scripts de automação para criação e execução de sequênci
 - [Licença](#-licença)
 
 ## 🎯 Sobre o Projeto
+![ezgif-8afe0425264e4216](https://github.com/user-attachments/assets/3a687de5-260b-4fd8-9317-f2697d745dfb)
+
 
 O **Clicker Script Editor** é uma aplicação desktop desenvolvida em Python que permite criar, editar e executar scripts de automação de forma visual e intuitiva. Com ele, você pode:
 
