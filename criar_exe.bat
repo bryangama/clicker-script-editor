@@ -13,17 +13,7 @@ if errorlevel 1 (
     exit /b 1
 )
 
-REM Verificar se PyInstaller está instalado
-python -c "import PyInstaller" >nul 2>&1
-if errorlevel 1 (
-    echo PyInstaller nao encontrado. Instalando...
-    pip install pyinstaller
-    if errorlevel 1 (
-        echo ERRO ao instalar PyInstaller!
-        pause
-        exit /b 1
-    )
-)
+REM O build_exe.py agora instala o PyInstaller automaticamente se necessário
 
 echo.
 echo Executando build...

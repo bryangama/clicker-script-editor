@@ -294,6 +294,18 @@ def format_step_display(step, index):
         window_title = step.get('window_title', '')
         size = step.get('size', [800, 600])
         return f"{index+1}. {name_prefix}Redimensionar '{window_title}' para {size[0]}x{size[1]} - Delay: {delay}s"
+    elif action_type == 'capturar_tela':
+        screenshot_name = step.get('screenshot_name', '')
+        screenshot_dir = step.get('screenshot_dir', '')
+        screenshot_region = step.get('screenshot_region', None)
+        if screenshot_region and len(screenshot_region) == 4:
+            x, y, width, height = screenshot_region
+            region_str = f" região ({x}, {y}, {width}x{height})"
+        else:
+            region_str = " tela inteira"
+        name_str = f" '{screenshot_name}'" if screenshot_name else " (timestamp automático)"
+        dir_str = f" em {screenshot_dir}" if screenshot_dir else ""
+        return f"{index+1}. {name_prefix}Capturar{region_str}{name_str}{dir_str} - Delay: {delay}s"
     else:
         return f"{index+1}. {name_prefix}{action_type} - Delay: {delay}s"
 

@@ -12,6 +12,16 @@ from gui_components import create_step_dialog, handle_step_dialog_events, create
 from scheduler import scheduler_loop
 from utils import format_step_display, validate_time, get_action_type_key
 
+# Verificar se pyautogui está funcionando corretamente
+try:
+    import pyautogui
+    # Testar se pyautogui consegue obter a posição do mouse
+    test_pos = pyautogui.position()
+    print(f"PyAutoGUI inicializado corretamente. Posição do mouse: {test_pos}")
+except Exception as e:
+    print(f"AVISO: PyAutoGUI pode não estar funcionando corretamente: {e}")
+    print("O aplicativo pode não conseguir clicar ou interagir com a tela.")
+
 
 def main():
     """Função principal do aplicativo."""

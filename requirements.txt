@@ -1,5 +1,7 @@
 FreeSimpleGUI
 pyautogui
+pyscreeze
+Pillow
 schedule
 pywin32
 # pywin32 (opcional, apenas Windows - melhora redimensionamento de janelas)

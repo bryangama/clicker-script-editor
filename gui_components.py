@@ -88,6 +88,34 @@ def create_step_dialog(step_data=None):
                      default_text=str(step_data.get('size', [800, 600])[1]) if is_edit and step_data.get('size') else '600')]
         ], key='-RESIZE-FIELDS-', visible=(action_type == 'redimensionar_janela')))],
         
+        [sg.pin(sg.Column([
+            [sg.Text('Nome do arquivo (opcional):', size=(20, 1))],
+            [sg.Text('Deixe vazio para usar timestamp automático', size=(35, 1), text_color='gray', font=('Helvetica', 8))],
+            [sg.Input(key='-SCREENSHOT-NAME-', size=(30, 1),
+                     default_text=step_data.get('screenshot_name', '') if is_edit else '',
+                     tooltip='Ex: screenshot_001 ou deixe vazio para timestamp')],
+            [sg.Text('Diretório (opcional):', size=(20, 1))],
+            [sg.Text('Deixe vazio para usar diretório padrão (screenshots)', size=(35, 1), text_color='gray', font=('Helvetica', 8))],
+            [sg.Input(key='-SCREENSHOT-DIR-', size=(30, 1),
+                     default_text=step_data.get('screenshot_dir', '') if is_edit else '',
+                     tooltip='Caminho onde salvar a captura. Ex: C:\\Screenshots')],
+            [sg.Checkbox('Capturar região específica', key='-SCREENSHOT-REGION-', 
+                        default=step_data.get('screenshot_region', None) is not None if is_edit else False,
+                        enable_events=True,
+                        tooltip='Marque para capturar apenas uma região da tela')],
+            [sg.pin(sg.Column([
+                [sg.Text('X:', size=(5, 1)), sg.Input(key='-SCREENSHOT-X-', size=(8, 1),
+                         default_text=str(step_data.get('screenshot_region', [0, 0, 0, 0])[0]) if is_edit and step_data.get('screenshot_region') else '0')],
+                [sg.Text('Y:', size=(5, 1)), sg.Input(key='-SCREENSHOT-Y-', size=(8, 1),
+                         default_text=str(step_data.get('screenshot_region', [0, 0, 0, 0])[1]) if is_edit and step_data.get('screenshot_region') else '0')],
+                [sg.Text('Largura:', size=(8, 1)), sg.Input(key='-SCREENSHOT-WIDTH-', size=(8, 1),
+                         default_text=str(step_data.get('screenshot_region', [0, 0, 0, 0])[2]) if is_edit and step_data.get('screenshot_region') else '1920')],
+                [sg.Text('Altura:', size=(8, 1)), sg.Input(key='-SCREENSHOT-HEIGHT-', size=(8, 1),
+                         default_text=str(step_data.get('screenshot_region', [0, 0, 0, 0])[3]) if is_edit and step_data.get('screenshot_region') else '1080')]
+            ], key='-SCREENSHOT-REGION-FIELDS-', 
+            visible=(step_data.get('screenshot_region', None) is not None if is_edit else False)))],
+        ], key='-SCREENSHOT-FIELDS-', visible=(action_type == 'capturar_tela')))],
+        
         [sg.Text('', key='-STATUS-', size=(40, 1), text_color='blue')],
         
         [sg.Button('Salvar', key='-SAVE-'), sg.Button('Cancelar', key='-CANCEL-')]
@@ -113,6 +141,20 @@ def create_step_dialog(step_data=None):
             size = step_data.get('size', [800, 600])
             dialog['-RESIZE-WIDTH-'].update(str(size[0]))
             dialog['-RESIZE-HEIGHT-'].update(str(size[1]))
+        elif action_type == 'capturar_tela':
+            dialog['-SCREENSHOT-NAME-'].update(step_data.get('screenshot_name', ''))
+            dialog['-SCREENSHOT-DIR-'].update(step_data.get('screenshot_dir', ''))
+            screenshot_region = step_data.get('screenshot_region', None)
+            if screenshot_region:
+                dialog['-SCREENSHOT-REGION-'].update(True)
+                dialog['-SCREENSHOT-REGION-FIELDS-'].update(visible=True)
+                dialog['-SCREENSHOT-X-'].update(str(screenshot_region[0]))
+                dialog['-SCREENSHOT-Y-'].update(str(screenshot_region[1]))
+                dialog['-SCREENSHOT-WIDTH-'].update(str(screenshot_region[2]))
+                dialog['-SCREENSHOT-HEIGHT-'].update(str(screenshot_region[3]))
+            else:
+                dialog['-SCREENSHOT-REGION-'].update(False)
+                dialog['-SCREENSHOT-REGION-FIELDS-'].update(visible=False)
     
     return dialog
 
@@ -128,6 +170,11 @@ def handle_step_dialog_events(dialog, d_event, d_values, action_type_key):
         dialog['-SHORTCUT-FIELDS-'].update(visible=(action_type_key == 'atalho'))
         dialog['-APP-FIELDS-'].update(visible=(action_type_key == 'abrir_app'))
         dialog['-RESIZE-FIELDS-'].update(visible=(action_type_key == 'redimensionar_janela'))
+        dialog['-SCREENSHOT-FIELDS-'].update(visible=(action_type_key == 'capturar_tela'))
+    
+    if d_event == '-SCREENSHOT-REGION-':
+        # Mostrar/esconder campos de região baseado na checkbox
+        dialog['-SCREENSHOT-REGION-FIELDS-'].update(visible=d_values['-SCREENSHOT-REGION-'])
     
     if d_event == '-CAPTURE-BTN-':
         dialog['-STATUS-'].update('Aguardando 3 segundos... Posicione o mouse onde deseja clicar.')
@@ -180,6 +227,25 @@ def create_step_from_dialog(d_values, action_type_key, step_name, delay):
             step['size'] = [width, height]
         except ValueError:
             step['size'] = [800, 600]
+    elif action_type_key == 'capturar_tela':
+        screenshot_name = d_values.get('-SCREENSHOT-NAME-', '').strip()
+        if screenshot_name:
+            step['screenshot_name'] = screenshot_name
+        screenshot_dir = d_values.get('-SCREENSHOT-DIR-', '').strip()
+        if screenshot_dir:
+            step['screenshot_dir'] = screenshot_dir
+        # Verificar se deve capturar região específica
+        if d_values.get('-SCREENSHOT-REGION-', False):
+            try:
+                x = int(d_values.get('-SCREENSHOT-X-', '0') or '0')
+                y = int(d_values.get('-SCREENSHOT-Y-', '0') or '0')
+                width = int(d_values.get('-SCREENSHOT-WIDTH-', '1920') or '1920')
+                height = int(d_values.get('-SCREENSHOT-HEIGHT-', '1080') or '1080')
+                step['screenshot_region'] = [x, y, width, height]
+            except ValueError:
+                step['screenshot_region'] = None
+        else:
+            step['screenshot_region'] = None
     
     return step
 

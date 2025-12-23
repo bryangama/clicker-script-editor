@@ -36,6 +36,10 @@ ACTION_TYPES = {
     'tecla': 'Pressionar Tecla',
     'atalho': 'Atalho (ex: ctrl+c)',
     'abrir_app': 'Abrir Aplicativo',
-    'redimensionar_janela': 'Redimensionar Janela'
+    'redimensionar_janela': 'Redimensionar Janela',
+    'capturar_tela': 'Capturar Tela (Print Screen)'
 }
+
+# Diretório padrão para screenshots
+SCREENSHOTS_DIR = os.path.join(BASE_DIR, 'screenshots')
 
